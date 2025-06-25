@@ -31,6 +31,7 @@
       margin-bottom: 2px;
       margin-top: 20px;
     }
+    /* --- Desktop Navbar --- */
     .header-nav {
       display: flex;
       align-items: center;
@@ -66,9 +67,87 @@
       color: #206bc4;
       cursor: default;
     }
+    /* --- Mobile Sidebar --- */
     .mobile-nav { display: none; }
-    .sidebar-overlay { display: none; }
-    .sidebar { display: none; }
+    .burger {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 2.1rem;
+      color: #37517e;
+      margin-left: 12px;
+      margin-right: 10px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.14s;
+    }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      z-index: 1010;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(50,70,90,0.25);
+      transition: 0.25s;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: -270px;
+      width: 230px;
+      height: 100vh;
+      z-index: 1020;
+      background: #fff;
+      border-right: 1.5px solid #e5e7eb;
+      box-shadow: 2px 0 16px rgba(44,62,80,0.08);
+      padding: 24px 12px 12px 12px;
+      transition: left 0.23s;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .sidebar-header img { height: 35px; }
+    .sidebar-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sidebar-menu a {
+      display: block;
+      padding: 11px 12px 9px 12px;
+      font-size: 1.07rem;
+      font-weight: 600;
+      color: #425466;
+      text-decoration: none;
+      border-radius: 6px;
+      margin-bottom: 2px;
+      border-left: 3px solid transparent;
+      transition: color 0.16s, border-left 0.16s, background 0.17s;
+    }
+    .sidebar-menu a.active,
+    .sidebar-menu a:hover {
+      color: #206bc4;
+      background: #f5faff;
+      border-left: 3px solid #206bc4;
+    }
+    @media (max-width: 991.98px) {
+      .header-nav { display: none !important; }
+      .mobile-nav { display: flex !important; align-items: center; height: 56px; background: #fff; border-bottom: 1.5px solid #e5e7eb; margin-bottom: 10px;}
+      .burger { display: block; }
+      .sidebar-overlay.open { display: block; }
+    }
+    @media (max-width: 900px) {
+      .custom-card { padding: 0.8rem; }
+      .table th, .table td { font-size: 0.92rem; }
+      .tab-menu { gap: 18px; }
+      .tab-menu a { font-size: 1rem; padding: 8px 0 5px 0; }
+      .header-nav .logo-kpk, .header-nav .logo-spi { height: 32px; }
+    }
     .dashboard-charts-row {
       display: flex;
       gap: 1rem;
@@ -98,8 +177,6 @@
       margin-top: 8px;
     }
     @media (max-width: 991.98px) {
-      .header-nav { display: none; }
-      .mobile-nav { display: flex; }
       .dashboard-charts-row { flex-direction: column; gap: 0.8rem; }
       .dashboard-chart-col { min-width: 0; max-width: 100%; }
     }
@@ -134,14 +211,59 @@
     .legend-radar-komponen .dot {
       width: 16px; height: 5px; border-radius: 3px; display: inline-block;
     }
-    @media (max-width: 900px) {
-      .custom-card { padding: 0.8rem; }
-      .table th, .table td { font-size: 0.92rem; }
+    /* Spinner Loading */
+    #loadingSpinner {
+      position: fixed;
+      z-index: 3000;
+      left: 0; top: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: opacity 0.32s;
     }
+    #loadingSpinner .spinner-border {
+      width: 3.4rem; height: 3.4rem; margin-bottom: 26px;
+      border-width: .35em;
+      color: #206bc4;
+    }
+    #loadingSpinner .loading-text {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: #205488;
+      margin-top: 8px;
+    }
+    #mainContent { opacity: 0; pointer-events: none; }
+    #mainContent.ready { opacity: 1; pointer-events: auto; transition: opacity 0.25s; }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
+  <!-- Mobile Navbar with burger -->
+  <div class="mobile-nav">
+    <button class="burger" aria-label="Menu" onclick="openSidebar()">&#9776;</button>
+    <div style="flex:1"></div>
+    <span style="font-size:1.05rem;font-weight:700;color:#425466;letter-spacing:1px;">Hasil SPI 2024</span>
+    <div style="flex:1"></div>
+  </div>
+  <!-- Sidebar Mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="https://elhkpn.kpk.go.id/portal-assets/img/image2.jpeg" alt="Logo KPK">
+      <img src="https://spi.kpk.go.id/img/logo-spi.d5368d4c.png" alt="Logo SPI">
+    </div>
+    <nav class="sidebar-menu">
+      <a href="https://timotiushps.github.io/hasilspi24/responrate">Response Rate</a>
+      <a href="https://timotiushps.github.io/hasilspi24/" class="active">Indeks</a>
+      <a href="https://timotiushps.github.io/hasilspi24/risiko">Tabel Risiko</a>
+      <a href="https://timotiushps.github.io/hasilspi24/keberadaan">Keberadaan</a>
+      <a href="https://timotiushps.github.io/hasilspi24/analisisRTL">Analisis RTL</a>
+    </nav>
+  </aside>
+  <!-- Desktop Navbar -->
   <div class="header-nav">
     <img src="https://elhkpn.kpk.go.id/portal-assets/img/image2.jpeg" alt="Logo KPK" class="logo-kpk">
     <nav class="tab-menu">
@@ -153,75 +275,98 @@
     </nav>
     <img src="https://spi.kpk.go.id/img/logo-spi.d5368d4c.png" alt="Logo SPI" class="logo-spi">
   </div>
-
-<div class="container py-4">
-  <h3 class="text-center flex-grow-1 mb-4" style="font-size:1.3rem"><i>Dashboard</i> Indeks Hasil SPI 2024</h3>
-  <div class="mb-3">
-    <label for="instansiInput" class="form-label">Nama Instansi:</label>
-    <input class="form-control" list="instansiList" id="instansiInput" placeholder="Ketik nama instansi...">
-    <datalist id="instansiList"></datalist>
+  <!-- Spinner Loading -->
+  <div id="loadingSpinner">
+    <div class="spinner-border" role="status"></div>
+    <div class="loading-text">Sedang Memuat Data Indeks</div>
   </div>
-  <div class="mb-4">
-    <label for="yearSelect" class="form-label">Pilih Tahun:</label>
-    <select id="yearSelect" class="form-select">
-      <option value="24">2024</option>
-      <option value="23">2023</option>
-      <option value="22">2022</option>
-      <option value="21">2021</option>
-    </select>
-  </div>
-  <div id="summaryBox" class="text-center mb-4"></div>
-  <div class="row mb-4">
-    <div class="col-md-6">
+  <div id="mainContent">
+    <div class="container py-4">
+      <h3 class="text-center flex-grow-1 mb-4" style="font-size:1.3rem"><i>Dashboard</i> Indeks Hasil SPI 2024</h3>
+      <div class="mb-3">
+        <label for="instansiInput" class="form-label">Nama Instansi:</label>
+        <input class="form-control" list="instansiList" id="instansiInput" placeholder="Ketik nama instansi...">
+        <datalist id="instansiList"></datalist>
+      </div>
+      <div class="mb-4">
+        <label for="yearSelect" class="form-label">Pilih Tahun:</label>
+        <select id="yearSelect" class="form-select">
+          <option value="24">2024</option>
+          <option value="23">2023</option>
+          <option value="22">2022</option>
+          <option value="21">2021</option>
+        </select>
+      </div>
+      <div id="summaryBox" class="text-center mb-4"></div>
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="custom-card">
+            <h6 class="text-center sub-title">Indeks Agregat (Sebelum Faktor Koreksi)</h6>
+            <canvas id="radarChart" width="400" height="400"></canvas>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="custom-card">
+            <h6 class="text-center sub-title">Faktor Koreksi</h6>
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="dashboard-charts-row">
+        <div class="dashboard-chart-col">
+          <div class="custom-card dashboard-chart-card">
+            <h6 class="text-center sub-title mb-2">Tren Indeks (2021–2024)</h6>
+            <div id="lineChartIndeksLegend"></div>
+            <canvas id="lineChartIndeks"></canvas>
+          </div>
+        </div>
+        <div class="dashboard-chart-col">
+          <div class="custom-card dashboard-chart-card">
+            <h6 class="text-center sub-title">Tren Faktor Koreksi (2021–2024)</h6>
+            <canvas id="lineChartFaktor"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="container mt-5 mb-4">
       <div class="custom-card">
-        <h6 class="text-center sub-title">Indeks Agregat (Sebelum Faktor Koreksi)</h6>
-        <canvas id="radarChart" width="400" height="400"></canvas>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="custom-card">
-        <h6 class="text-center sub-title">Faktor Koreksi</h6>
-        <canvas id="barChart"></canvas>
-      </div>
-    </div>
-  </div>
-  <div class="dashboard-charts-row">
-    <div class="dashboard-chart-col">
-      <div class="custom-card dashboard-chart-card">
-        <h6 class="text-center sub-title mb-2">Tren Indeks (2021–2024)</h6>
-        <div id="lineChartIndeksLegend"></div>
-        <canvas id="lineChartIndeks"></canvas>
-      </div>
-    </div>
-    <div class="dashboard-chart-col">
-      <div class="custom-card dashboard-chart-card">
-        <h6 class="text-center sub-title">Tren Faktor Koreksi (2021–2024)</h6>
-        <canvas id="lineChartFaktor"></canvas>
+        <h5 class="text-center mb-3 sub-title">Detail Komponen Indeks</h5>
+        <div class="d-flex justify-content-center mb-3">
+          <button class="btn btn-outline-primary mx-1" id="btnInternal" type="button">Internal</button>
+          <button class="btn btn-outline-success mx-1" id="btnEksternal" type="button">Eksternal</button>
+          <button class="btn btn-outline-warning mx-1" id="btnEksper" type="button">Eksper</button>
+        </div>
+        <div class="row mb-4">
+          <div class="col-md-6 offset-md-3">
+            <div id="legendRadarKomponen" class="legend-radar-komponen"></div>
+            <canvas id="radarKomponenChart" width="350" height="350"></canvas>
+          </div>
+        </div>
+        <div id="tabelDetailKomponen"></div>
+        <div id="unitKerjaSection"></div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="container mt-5 mb-4">
-  <div class="custom-card">
-    <h5 class="text-center mb-3 sub-title">Detail Komponen Indeks</h5>
-    <div class="d-flex justify-content-center mb-3">
-      <button class="btn btn-outline-primary mx-1" id="btnInternal" type="button">Internal</button>
-      <button class="btn btn-outline-success mx-1" id="btnEksternal" type="button">Eksternal</button>
-      <button class="btn btn-outline-warning mx-1" id="btnEksper" type="button">Eksper</button>
-    </div>
-    <div class="row mb-4">
-      <div class="col-md-6 offset-md-3">
-        <div id="legendRadarKomponen" class="legend-radar-komponen"></div>
-        <canvas id="radarKomponenChart" width="350" height="350"></canvas>
-      </div>
-    </div>
-    <div id="tabelDetailKomponen"></div>
-    <div id="unitKerjaSection"></div>
-  </div>
-</div>
-
-<script>
+  <footer class="text-center small text-muted mt-5 mb-3">
+      v2.16<br>
+      © Hak Cipta Milik Tim SPI 2025 KPK RI<br>
+      Segala Penggunaan Data dari <i>dashboard</i> ini harus seizin Direktorat Monitoring KPK RI.
+  </footer>
+  <script>
+    // Sidebar mobile logic
+    function openSidebar() {
+      document.getElementById('sidebar').classList.add('open');
+      document.getElementById('sidebarOverlay').classList.add('open');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 991) closeSidebar();
+    });
+  </script>
+  <script>
 let rawData = [], radarChart, barChart, lineChartIndeks, lineChartFaktor;
 let dataInternal = [], dataEksternal = [], dataEksper = [];
 let dataUnitKerjaInternal = [], dataUnitKerjaEksternal = [], dataUnitKerjaEksper = [];
@@ -248,7 +393,6 @@ function textLooseMatch(a, b) {
   if (!a || !b) return false;
   return a.trim().replace(/\s+/g, " ").toLowerCase() === b.trim().replace(/\s+/g, " ").toLowerCase();
 }
-
 function updateDashboard() {
   const instansi = document.getElementById("instansiInput").value;
   const year = document.getElementById("yearSelect").value;
@@ -380,7 +524,6 @@ function updateDashboard() {
   if (lineChartFaktor) lineChartFaktor.destroy();
   renderFaktorKoreksiLineChart(filtered);
 }
-
 function renderFaktorKoreksiLineChart(filtered) {
   const found1 = filtered.find(d => d["Index_name"] === "Prevalensi Korupsi");
   const found2 = filtered.find(d => d["Index_name"] === "Integritas Pelaksanaan SPI");
@@ -426,11 +569,13 @@ function renderFaktorKoreksiLineChart(filtered) {
     plugins: [ChartDataLabels]
   });
 }
-
 async function loadAllData() {
-  const [internal, eksternal, eksper, 
-    unitInternal, unitEksternal, unitEksper, 
-    main, itemDetail] = await Promise.all([
+  // Optimized load
+  const [
+    internal, eksternal, eksper,
+    unitInternal, unitEksternal, unitEksper,
+    main, itemDetail
+  ] = await Promise.all([
     fetch("https://raw.githubusercontent.com/timotiushps/hasilspi24/main/agregat_tracking_internal.csv").then(r => r.text()),
     fetch("https://raw.githubusercontent.com/timotiushps/hasilspi24/main/agregat_tracking_eksternal.csv").then(r => r.text()),
     fetch("https://raw.githubusercontent.com/timotiushps/hasilspi24/main/agregat_tracking_eksper.csv").then(r => r.text()),
@@ -459,7 +604,6 @@ async function loadAllData() {
   updateDashboard();
   tampilkanTabelRadarKomponen();
 }
-
 function getKomponenData(kelompok, instansi = "Seluruh K/L/PD Peserta SPI 2024") {
   let sumber = [];
   if (kelompok === "Internal") sumber = dataInternal;
@@ -468,7 +612,6 @@ function getKomponenData(kelompok, instansi = "Seluruh K/L/PD Peserta SPI 2024")
   const isKomponen = s => !["Internal", "Eksternal", "Eksper"].includes(s);
   return sumber.filter(d => d["data.instansi"] === instansi && isKomponen(d["Index_name"]));
 }
-
 function tampilkanTabelRadarKomponen() {
   const instansi = document.getElementById("instansiInput")?.value || "Seluruh K/L/PD Peserta SPI 2024";
   const komponen = getKomponenData(kelompokAktif, instansi);
@@ -481,7 +624,7 @@ function tampilkanTabelRadarKomponen() {
       { label:"2023", color:"#ffc107" },
       { label:"2024", color:"#dc3545" }
     ];
-    document.getElementById("legendRadarKomponen").innerHTML = legendRadar.map(l => 
+    document.getElementById("legendRadarKomponen").innerHTML = legendRadar.map(l =>
       `<span><span class="dot" style="background:${l.color}"></span> ${l.label}</span>`
     ).join("");
     const labels = komponen.map(r => r["Index_name"]);
@@ -511,7 +654,7 @@ function tampilkanTabelRadarKomponen() {
       options: {
         responsive: true,
         legend: { display: false },
-        scale: { 
+        scale: {
           ticks: { beginAtZero: false, min: 40, max: 100 }
         },
         tooltips: {
@@ -561,7 +704,6 @@ function tampilkanTabelRadarKomponen() {
   setupExpandableDimensiRows();
   tampilkanUnitKerjaSection();
 }
-
 function tampilkanUnitKerjaSection() {
   const instansi = document.getElementById("instansiInput").value;
   let dataset = [];
@@ -632,7 +774,6 @@ function tampilkanUnitKerjaSection() {
     document.getElementById("tabelUnitKerja").innerHTML = html;
   }
 }
-
 function setupExpandableDimensiRows() {
   const tbody = document.querySelector("#table-komponen-expand tbody");
   if (!tbody) return;
@@ -676,9 +817,13 @@ function setupExpandableDimensiRows() {
     });
   });
 }
-
 document.addEventListener("DOMContentLoaded", async () => {
+  document.getElementById("mainContent").classList.remove("ready");
+  document.getElementById("loadingSpinner").style.display = "flex";
   await loadAllData();
+  document.getElementById("mainContent").classList.add("ready");
+  document.getElementById("loadingSpinner").style.display = "none";
+
   document.getElementById("btnInternal").onclick = function() {
     kelompokAktif = "Internal";
     this.classList.add("active");
@@ -706,12 +851,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   tampilkanTabelRadarKomponen();
   updateDashboard();
 });
-</script>
-
-<footer class="text-center small text-muted mt-5 mb-3">
-    v2.16<br>
-    © Hak Cipta Milik Tim SPI 2025 KPK RI<br>
-    Segala Penggunaan Data dari <i>dashboard</i> ini harus seizin Direktorat Monitoring KPK RI.
-</footer>
+  </script>
 </body>
 </html>
